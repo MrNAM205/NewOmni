@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "path": "document1.txt",
+      "text": "This is a test document. It mentions taxes. Today's date is 2023-10-27.",
+      "size_bytes": 75,
+      "metadata": {}
+    },
+    {
+      "path": "document2.txt",
+      "text": "This is another test document. It talks about a deed. The date is 2023-10-28.",
+      "size_bytes": 80,
+      "metadata": {}
+    }
+  ]
+}
