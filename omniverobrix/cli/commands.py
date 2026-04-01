@@ -7,6 +7,7 @@ from omniverobrix.core.reasoning_loop import ReasoningLoop
 from omniverobrix.missions.house_defense.module import HouseDefenseModule
 from omniverobrix.core.context_manager import ContextManager
 from omniverobrix.missions.manager.manager import MissionManager
+from omniverobrix.core.document_manager import DocumentManager
 
 
 def cli_entrypoint():
@@ -97,6 +98,16 @@ def cli_entrypoint():
     # ---------------------------------------------------------
     persona_cmd = sub.add_parser("persona", help="Set active persona")
     persona_cmd.add_argument("persona_name", choices=["private_individual", "analyst", "representative"])
+
+    # ---------------------------------------------------------
+    # DOCUMENT
+    # ---------------------------------------------------------
+    doc_cmd = sub.add_parser("document", help="Document management commands")
+    doc_sub = doc_cmd.add_subparsers(dest="document_action")
+    
+    # Get
+    doc_get = doc_sub.add_parser("get", help="Get document content and metadata")
+    doc_get.add_argument("document_id", type=int)
 
 
     # ---------------------------------------------------------
@@ -206,6 +217,13 @@ def cli_entrypoint():
         ctx = ContextManager(db_path="omniverobrix.db")
         ctx.set("active_persona", args.persona_name)
         print(f"Active persona set to {args.persona_name}")
+        return
+
+    if args.command == "document":
+        dm = DocumentManager(db_path="omniverobrix.db")
+        if args.document_action == "get":
+            doc = dm.get(args.document_id)
+            print(json.dumps(doc, indent=2))
         return
 
     parser.print_help()
