@@ -3,32 +3,40 @@ export default function Sidebar({
   activeMissionId,
   onSelectMission,
   activePersona,
-  onSelectPersona
+  onSelectPersona,
+  onSelectPanel
 }) {
   return (
-    <div className="sidebar">
-      <h3>Missions</h3>
-      <ul>
-        {missions.map(m => (
-          <li
+    &lt;div className="sidebar"&gt;
+      &lt;h3&gt;Dashboards&lt;/h3&gt;
+      &lt;ul&gt;
+        &lt;li onClick={() =&gt; onSelectPanel("global_intel")}&gt;
+          Global Intelligence
+        &lt;/li&gt;
+      &lt;/ul&gt;
+
+      &lt;h3&gt;Missions&lt;/h3&gt;
+      &lt;ul&gt;
+        {missions.map(m =&gt; (
+          &lt;li
             key={m.id}
             className={m.id === activeMissionId ? "active" : ""}
-            onClick={() => onSelectMission(m.id)}
-          >
+            onClick={() =&gt; onSelectMission(m.id)}
+          &gt;
             {m.name} — {m.description}
-          </li>
+          &lt;/li&gt;
         ))}
-      </ul>
+      &lt;/ul&gt;
 
-      <h3>Persona</h3>
-      <select
+      &lt;h3&gt;Persona&lt;/h3&gt;
+      &lt;select
         value={activePersona}
-        onChange={e => onSelectPersona(e.target.value)}
-      >
-        <option value="private_individual">Private Individual</option>
-        <option value="analyst">Analyst</option>
-        <option value="representative">Representative</option>
-      </select>
-    </div>
+        onChange={e =&gt; onSelectPersona(e.target.value)}
+      &gt;
+        &lt;option value="private_individual"&gt;Private Individual&lt;/option&gt;
+        &lt;option value="analyst"&gt;Analyst&lt;/option&gt;
+        &lt;option value="representative"&gt;Representative&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
   );
 }

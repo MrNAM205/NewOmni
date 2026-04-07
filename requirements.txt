@@ -1,0 +1,6 @@
+
+pyzbar
+opencv-python
+python-dateutil
+Flask
+Flask-Cors

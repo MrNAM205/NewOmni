@@ -1,0 +1,24 @@
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+*.db
+*.sqlite3
+omniverobrix.db
+
+# User Uploads / Data
+uploads/
+scan.json
+
+# IDEs
+.vscode/
+.idea/

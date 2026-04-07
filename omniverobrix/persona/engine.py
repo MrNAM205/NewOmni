@@ -49,24 +49,28 @@ class PersonaEngine:
 
     def apply_summary_style(self, summary: Dict[str, Any]) -> Dict[str, Any]:
         persona = self.get_persona()
-        style = persona["summary_style"]
+        style = persona.get("summary_style", "")
 
         if style == "gentle, clear, focused on understanding":
             return summary
 
         if style == "structured, bullet-point, analytical":
+            text = summary.get("summary_text", "")
+            known = len(summary.get("known", []))
+            unknown = len(summary.get("unknown", []))
             summary["summary_text"] = (
                 "ANALYST SUMMARY:\n"
-                f"- {summary['summary_text']}\n"
-                f"- Known: {len(summary['known'])} items\n"
-                f"- Unknown: {len(summary['unknown'])} items"
+                f"- {text}\n"
+                f"- Known: {known} items\n"
+                f"- Unknown: {unknown} items"
             )
             return summary
 
         if style == "persuasive, polished, outward-facing":
+            text = summary.get("summary_text", "")
             summary["summary_text"] = (
                 "REPRESENTATIVE SUMMARY:\n"
-                f"{summary['summary_text']}\n"
+                f"{text}\n"
                 "This summary is prepared for external communication."
             )
             return summary
@@ -77,6 +81,15 @@ class PersonaEngine:
     # High-level response shaping
     # ---------------------------------------------------------
 
+    def _apply_tone_recursively(self, data: Any) -> Any:
+        if isinstance(data, dict):
+            return {k: self._apply_tone_recursively(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [self._apply_tone_recursively(item) for item in data]
+        elif isinstance(data, str):
+            return self.apply_tone(data)
+        return data
+
     def shape_response(self, response: Dict[str, Any]) -> Dict[str, Any]:
         """
         Applies persona tone + summary style to mission outputs.
@@ -84,14 +97,13 @@ class PersonaEngine:
         persona = self.get_persona()
 
         # Shape mission summaries
-        if response.get("type") == "house_defense":
+        if isinstance(response, dict) and response.get("type") == "house_defense":
             result = response.get("result", {})
-            summary = result.get("summary", {})
+            if isinstance(result, dict):
+                summary = result.get("summary", {})
+                if isinstance(summary, dict):
+                    result["summary"] = self.apply_summary_style(summary)
+                    response["result"] = result
 
-            summary = self.apply_summary_style(summary)
-            summary["summary_text"] = self.apply_tone(summary["summary_text"])
-
-            result["summary"] = summary
-            response["result"] = result
-
-        return response
+        # Gracefully handle dicts with arbitrary fields and apply tone shaping
+        return self._apply_tone_recursively(response)
