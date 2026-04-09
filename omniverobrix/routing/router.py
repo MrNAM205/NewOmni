@@ -5,8 +5,7 @@ from typing import Dict, Any
 from omniverobrix.core.reasoning_loop import ReasoningLoop
 
 # Adjust this if your DB path ever moves
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(PROJECT_ROOT, "omniverobrix.db")
+DB_PATH = r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db"
 
 
 def run_ollama(model: str, prompt: str) -> str:

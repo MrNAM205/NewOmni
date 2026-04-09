@@ -10,7 +10,7 @@ from omniverobrix.missions.manager.manager import MissionManager
 from omniverobrix.core.document_manager import DocumentManager
 
 
-def cli_entrypoint():
+def cli():
     parser = argparse.ArgumentParser(
         prog="omniverobrix",
         description="OmniVeroBrix Sovereign Intelligence CLI"
@@ -24,6 +24,11 @@ def cli_entrypoint():
     scan_cmd = sub.add_parser("scan", help="Scan a folder and produce a JSON report")
     scan_cmd.add_argument("folder", help="Folder to scan")
     scan_cmd.add_argument("--out", required=True, help="Output JSON report path")
+
+    # ---------------------------------------------------------
+    # SCAN-NOW (Autonomous)
+    # ---------------------------------------------------------
+    sub.add_parser("scan-now", help="Autonomous scan of predefined cockpit folders")
 
     # ---------------------------------------------------------
     # INGEST
@@ -124,6 +129,12 @@ def cli_entrypoint():
         print(f"Scan complete. Report saved to {args.out}")
         return
 
+    if args.command == "scan-now":
+        loop = ReasoningLoop(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
+        response = loop.handle_query("scan now")
+        print(json.dumps(response, indent=2))
+        return
+
     if args.command == "ingest":
         global_tool_registry.call(
             "ingest_scanner_report",
@@ -149,14 +160,14 @@ def cli_entrypoint():
         return
 
     if args.command == "ask":
-        loop = ReasoningLoop(db_path="omniverobrix.db")
+        loop = ReasoningLoop(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
         response = loop.handle_query(args.query)
         print(json.dumps(response, indent=2))
         return
 
     if args.command == "mission":
-        mm = MissionManager(db_path="omniverobrix.db")
-        ctx = ContextManager(db_path="omniverobrix.db")
+        mm = MissionManager(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
+        ctx = ContextManager(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
 
         if args.mission_action == "create":
             mission_id = mm.create(args.mission_type, args.description)
@@ -196,7 +207,7 @@ def cli_entrypoint():
         return
 
     if args.command == "set-house":
-        ctx = ContextManager(db_path="omniverobrix.db")
+        ctx = ContextManager(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
 
         # Validate mission exists
         conn = ctx._connect()
@@ -214,16 +225,19 @@ def cli_entrypoint():
         return
 
     if args.command == "persona":
-        ctx = ContextManager(db_path="omniverobrix.db")
+        ctx = ContextManager(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
         ctx.set("active_persona", args.persona_name)
         print(f"Active persona set to {args.persona_name}")
         return
 
     if args.command == "document":
-        dm = DocumentManager(db_path="omniverobrix.db")
+        dm = DocumentManager(db_path=r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db")
         if args.document_action == "get":
             doc = dm.get(args.document_id)
             print(json.dumps(doc, indent=2))
         return
 
     parser.print_help()
+
+if __name__ == "__main__":
+    cli()

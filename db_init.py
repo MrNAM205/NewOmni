@@ -1,6 +1,9 @@
 import sqlite3
+import os
 
-def initialize_db(db_path="omniverobrix.db"):
+def initialize_db(db_path=None):
+    if db_path is None:
+        db_path = os.path.join(os.getcwd(), "omniverobrix", "omniverobrix.db")
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     
@@ -50,6 +53,14 @@ def initialize_db(db_path="omniverobrix.db"):
         )""",
         """CREATE TABLE IF NOT EXISTS folder_signatures (
             id INTEGER PRIMARY KEY AUTOINCREMENT, folder_path TEXT, signature_hash TEXT
+        )"""
+        ,
+        """CREATE TABLE IF NOT EXISTS mission_steps (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, mission_id INTEGER, step_name TEXT, status TEXT, updated_at TEXT,
+            FOREIGN KEY (mission_id) REFERENCES missions(id)
+        )""",
+        """CREATE TABLE IF NOT EXISTS persona_state (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, persona_name TEXT, settings_json TEXT
         )"""
     ]
     

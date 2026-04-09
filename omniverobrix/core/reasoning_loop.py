@@ -6,18 +6,18 @@ from omniverobrix.core.context_manager import ContextManager
 from omniverobrix.missions.house_defense.module import HouseDefenseModule
 from omniverobrix.persona.engine import PersonaEngine
 from omniverobrix.missions.manager.manager import MissionManager
+from omniverobrix.tools.scanner import FolderScanner
 
 
 class ReasoningLoop:
     """
-    Phase 2 Reasoning Loop (v2):
-    - Detects intent (search, timeline, entities, ingest, house_defense)
-    - Routes to tools or mission modules
-    - Produces structured responses
-    - Tracks context (last query, last results, active mission)
+    Reasoning Loop: Unified handler for specialized missions and semantic queries.
     """
 
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            db_path = r"C:\Users\Sir\Desktop\NewOmni\omniverobrix\omniverobrix.db"
+            
         self.context = ContextManager(db_path=db_path)
         self.db_path = db_path
         self.persona_engine = PersonaEngine(db_path=db_path)
@@ -38,6 +38,18 @@ class ReasoningLoop:
         """
         self.context.set("last_query", query)
         intent = self._detect_intent(query)
+
+        if "scan" in query.lower():
+            scanner = FolderScanner(self.db_path)
+            folders = [
+                r"C:\omni_organizer_pc",
+                r"C:\Organizer",
+                r"C:\PhoneBackup",
+                r"C:\phone_backup",
+                r"C:\Users\Sir\Downloads",
+                r"D:\legal"
+            ]
+            return self.persona_engine.shape_response(scanner.scan_folders(folders))
 
         response: Dict[str, Any]
 
@@ -80,8 +92,11 @@ class ReasoningLoop:
         if "who" in q or "entities" in q or "people" in q:
             return "entities"
 
-        if "ingest" in q or "scan" in q:
+        if "ingest" in q:
             return "ingest"
+
+        if "scan" in q:
+            return "scan"
 
         return "search"
 

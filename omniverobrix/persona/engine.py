@@ -3,7 +3,6 @@
 from typing import Dict, Any
 from omniverobrix.persona.personas import PERSONAS
 
-
 class PersonaEngine:
     """
     Phase 3 Persona Engine:
@@ -33,8 +32,11 @@ class PersonaEngine:
     # ---------------------------------------------------------
 
     def apply_tone(self, text: str) -> str:
+        if not isinstance(text, str):
+            return text
+            
         persona = self.get_persona()
-        tone = persona["tone"]
+        tone = persona.get("tone", "plain-language")
 
         if "plain-language" in tone:
             return text
@@ -51,28 +53,33 @@ class PersonaEngine:
         persona = self.get_persona()
         style = persona.get("summary_style", "")
 
+        if not isinstance(summary, dict):
+            return summary
+
         if style == "gentle, clear, focused on understanding":
             return summary
 
         if style == "structured, bullet-point, analytical":
-            text = summary.get("summary_text", "")
-            known = len(summary.get("known", []))
-            unknown = len(summary.get("unknown", []))
-            summary["summary_text"] = (
-                "ANALYST SUMMARY:\n"
-                f"- {text}\n"
-                f"- Known: {known} items\n"
-                f"- Unknown: {unknown} items"
-            )
+            if "summary_text" in summary:
+                text = summary["summary_text"]
+                known = len(summary.get("known", []))
+                unknown = len(summary.get("unknown", []))
+                summary["summary_text"] = (
+                    "ANALYST SUMMARY:\n"
+                    f"- {text}\n"
+                    f"- Known: {known} items\n"
+                    f"- Unknown: {unknown} items"
+                )
             return summary
 
         if style == "persuasive, polished, outward-facing":
-            text = summary.get("summary_text", "")
-            summary["summary_text"] = (
-                "REPRESENTATIVE SUMMARY:\n"
-                f"{text}\n"
-                "This summary is prepared for external communication."
-            )
+            if "summary_text" in summary:
+                text = summary["summary_text"]
+                summary["summary_text"] = (
+                    "REPRESENTATIVE SUMMARY:\n"
+                    f"{text}\n"
+                    "This summary is prepared for external communication."
+                )
             return summary
 
         return summary
@@ -92,18 +99,16 @@ class PersonaEngine:
 
     def shape_response(self, response: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Applies persona tone + summary style to mission outputs.
+        Applies persona tone + summary style to mission outputs. Never crashes on missing keys.
         """
-        persona = self.get_persona()
+        if not isinstance(response, dict):
+            return response
 
-        # Shape mission summaries
-        if isinstance(response, dict) and response.get("type") == "house_defense":
+        if response.get("type") == "house_defense":
             result = response.get("result", {})
             if isinstance(result, dict):
-                summary = result.get("summary", {})
-                if isinstance(summary, dict):
-                    result["summary"] = self.apply_summary_style(summary)
-                    response["result"] = result
+                summary = result.get("summary")
+                result["summary"] = self.apply_summary_style(summary)
+                response["result"] = result
 
-        # Gracefully handle dicts with arbitrary fields and apply tone shaping
         return self._apply_tone_recursively(response)
